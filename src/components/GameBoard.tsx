@@ -50,6 +50,14 @@ export default function GameBoard() {
         <div className="text-center mb-6">
           <h1 className="text-4xl font-bold text-yellow-400 mb-2">🃏 바둑이 포커</h1>
           <p className="text-gray-300">AI와 함께하는 바둑이 게임</p>
+          {/* 디버그 정보 */}
+          <div className="text-xs text-gray-500 mt-2 bg-gray-800 p-2 rounded">
+            Phase: {gameState.phase} | Round: {gameState.round} | 
+            HumanTurn: {isHumanTurn ? 'YES' : 'NO'} | 
+            Animating: {uiState.animating ? 'YES' : 'NO'} |
+            CurrentBet: {gameState.currentBet} |
+            HumanBet: {humanPlayer.currentBet}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

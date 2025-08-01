@@ -58,7 +58,11 @@ function gameReducer(state: GameWithUI, action: GameAction): GameWithUI {
       return {
         ...state,
         game: exchangedGame,
-        ui: { ...state.ui, selectedCards: [], animating: true }
+        ui: { 
+          ...state.ui, 
+          selectedCards: [], 
+          animating: exchangedGame.phase === 'card-exchange' // final-betting 단계면 애니메이션 중지
+        }
       };
 
     case 'TOGGLE_CARD_SELECTION':
@@ -102,7 +106,10 @@ function gameReducer(state: GameWithUI, action: GameAction): GameWithUI {
       return {
         ...state,
         game: aiExchangedGame,
-        ui: { ...state.ui, animating: true }
+        ui: { 
+          ...state.ui, 
+          animating: aiExchangedGame.phase === 'card-exchange' // final-betting 단계면 애니메이션 중지
+        }
       };
 
     case 'PROCEED_TO_FINAL_BETTING':

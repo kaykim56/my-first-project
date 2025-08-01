@@ -196,12 +196,12 @@ export function exchangeCards(gameState: GameState, playerId: string, cardIds: s
       ...newPlayers[0],
       isTurn: true
     };
-    // 모든 플레이어의 베팅을 리셋
+    // 모든 플레이어의 베팅을 리셋 (final-betting 단계용)
     newPlayers.forEach((player, index) => {
       newPlayers[index] = {
         ...player,
         currentBet: 0,
-        isTurn: index === 0
+        isTurn: index === 0 // 첫 번째 플레이어(human)부터 시작
       };
     });
   }
@@ -212,7 +212,8 @@ export function exchangeCards(gameState: GameState, playerId: string, cardIds: s
     players: newPlayers,
     deck: remainingDeck,
     currentPlayerIndex: nextPlayerIndex,
-    currentBet: newPhase === 'final-betting' ? 0 : gameState.currentBet
+    currentBet: newPhase === 'final-betting' ? 0 : gameState.currentBet,
+    round: newPhase === 'final-betting' ? 2 : gameState.round // final-betting은 2라운드
   };
 }
 
@@ -283,8 +284,11 @@ function endBettingRound(gameState: GameState): GameState {
         isTurn: index === 0 // 첫 번째 플레이어(human)부터 시작
       }))
     };
+  } else if (gameState.phase === 'final-betting') {
+    // 최종 베팅 라운드 후 승부 결정
+    return determineWinner(gameState);
   } else {
-    // 두 번째 라운드 후 승부 결정
+    // 기타 상황에서도 승부 결정
     return determineWinner(gameState);
   }
 }
