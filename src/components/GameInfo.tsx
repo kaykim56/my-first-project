@@ -42,26 +42,26 @@ export default function GameInfo({ gameState, humanPlayer }: GameInfoProps) {
   };
 
   return (
-    <div className="bg-gray-800 text-white rounded-lg p-4 space-y-4">
-      {/* 게임 상태 */}
-      <div className="text-center">
-        <h2 className="text-xl font-bold text-yellow-400">
+    <div className="bg-gradient-to-br from-indigo-900/30 via-purple-900/30 to-blue-900/30 backdrop-blur-sm text-white rounded-2xl p-6 space-y-6 border border-indigo-500/30 shadow-2xl shadow-indigo-900/20">
+      {/* 모던 게임 상태 */}
+      <div className="text-center bg-gradient-to-r from-indigo-800/20 to-purple-800/20 rounded-xl p-4 border border-indigo-500/20">
+        <h2 className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent mb-1">
           {PHASE_NAMES[gameState.phase]}
         </h2>
-        <div className="text-sm text-gray-300">
-          라운드 {gameState.round}
+        <div className="text-sm text-gray-300 bg-gray-800/50 px-3 py-1 rounded-full inline-block">
+          Round {gameState.round}
         </div>
       </div>
 
-      {/* 현재 턴 */}
+      {/* 모던 현재 턴 */}
       {currentPlayer && (
-        <div className="text-center">
-          <div className="text-lg font-semibold">
-            {currentPlayer.type === 'human' ? '당신의 턴' : 'AI의 턴'}
+        <div className="text-center bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+          <div className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            {currentPlayer.type === 'human' ? '👤 YOUR TURN' : '🤖 AI TURN'}
           </div>
           {currentPlayer.isTurn && (
-            <div className="text-green-400 text-sm animate-pulse">
-              행동을 기다리고 있습니다...
+            <div className="text-green-400 text-sm animate-pulse mt-2 bg-green-900/20 px-3 py-1 rounded-full border border-green-500/30">
+              ⚡ Waiting for action...
             </div>
           )}
         </div>
