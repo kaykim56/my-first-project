@@ -54,18 +54,10 @@ function gameReducer(state: GameWithUI, action: GameAction): GameWithUI {
       };
 
     case 'EXCHANGE_CARDS':
-      if (action.cardIds.length === 0) {
-        // 카드 교체 없이 다음 단계로
-        return {
-          ...state,
-          game: { ...state.game, phase: 'final-betting' },
-          ui: { ...state.ui, selectedCards: [] }
-        };
-      }
       const exchangedGame = exchangeCards(state.game, action.playerId, action.cardIds);
       return {
         ...state,
-        game: { ...exchangedGame, phase: 'final-betting' },
+        game: exchangedGame,
         ui: { ...state.ui, selectedCards: [], animating: true }
       };
 
@@ -105,13 +97,11 @@ function gameReducer(state: GameWithUI, action: GameAction): GameWithUI {
       };
 
     case 'AI_CARD_EXCHANGE':
-      const aiExchangedGame = action.cardIds.length > 0 
-        ? exchangeCards(state.game, 'ai', action.cardIds)
-        : state.game;
+      const aiExchangedGame = exchangeCards(state.game, 'ai', action.cardIds);
       
       return {
         ...state,
-        game: { ...aiExchangedGame, phase: 'final-betting' },
+        game: aiExchangedGame,
         ui: { ...state.ui, animating: true }
       };
 

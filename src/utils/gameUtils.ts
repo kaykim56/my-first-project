@@ -153,17 +153,21 @@ export function processBettingAction(
 
 // 카드 교체 처리
 export function exchangeCards(gameState: GameState, playerId: string, cardIds: string[]): GameState {
-  if (gameState.exchangesRemaining <= 0) return gameState;
-
   const playerIndex = gameState.players.findIndex(p => p.id === playerId);
   if (playerIndex === -1) return gameState;
 
   const player = gameState.players[playerIndex];
   const cardsToKeep = player.cards.filter(card => !cardIds.includes(card.id));
   
-  // 새 카드 뽑기
-  const { cards: newCards, remainingDeck } = drawCards(gameState.deck, cardIds.length);
-  const updatedCards = [...cardsToKeep, ...newCards.map(card => ({ ...card, selected: false }))];
+  // 새 카드 뽑기 (교체할 카드가 있는 경우에만)
+  let remainingDeck = gameState.deck;
+  let updatedCards = player.cards;
+  
+  if (cardIds.length > 0) {
+    const { cards: newCards, remainingDeck: newDeck } = drawCards(gameState.deck, cardIds.length);
+    remainingDeck = newDeck;
+    updatedCards = [...cardsToKeep, ...newCards.map(card => ({ ...card, selected: false }))];
+  }
 
   const newPlayers = [...gameState.players];
   newPlayers[playerIndex] = {
@@ -172,21 +176,43 @@ export function exchangeCards(gameState: GameState, playerId: string, cardIds: s
     isTurn: false
   };
 
-  // 다음 플레이어로 턴 이동
-  const nextPlayerIndex = getNextPlayerIndex(gameState, playerIndex);
-  if (nextPlayerIndex !== -1) {
-    newPlayers[nextPlayerIndex] = {
-      ...newPlayers[nextPlayerIndex],
+  // 다음 플레이어로 턴 이동 또는 최종 베팅 단계로 진행
+  let nextPlayerIndex = gameState.currentPlayerIndex;
+  let newPhase = gameState.phase;
+  
+  // 다음 플레이어가 있는지 확인 (간단한 2인 게임 로직)
+  if (playerIndex === 0 && !gameState.players[1].folded) {
+    // 첫 번째 플레이어(human)가 교체했으면 AI 턴  
+    nextPlayerIndex = 1;
+    newPlayers[1] = {
+      ...newPlayers[1],
       isTurn: true
     };
+  } else {
+    // AI가 교체했거나 모든 플레이어가 교체 완료 -> 최종 베팅 단계
+    newPhase = 'final-betting';
+    nextPlayerIndex = 0;
+    newPlayers[0] = {
+      ...newPlayers[0],
+      isTurn: true
+    };
+    // 모든 플레이어의 베팅을 리셋
+    newPlayers.forEach((player, index) => {
+      newPlayers[index] = {
+        ...player,
+        currentBet: 0,
+        isTurn: index === 0
+      };
+    });
   }
 
   return {
     ...gameState,
+    phase: newPhase,
     players: newPlayers,
     deck: remainingDeck,
     currentPlayerIndex: nextPlayerIndex,
-    exchangesRemaining: gameState.exchangesRemaining - 1
+    currentBet: newPhase === 'final-betting' ? 0 : gameState.currentBet
   };
 }
 
@@ -268,20 +294,27 @@ export function getNextPlayerIndex(gameState: GameState, currentIndex: number): 
   const activePlayers = gameState.players.filter(p => !p.folded);
   if (activePlayers.length <= 1) return -1;
 
+  // 모든 활성 플레이어가 행동했는지 확인
+  const allPlayersActed = activePlayers.every(p => !p.isTurn);
+  
   // 모든 플레이어가 같은 금액을 베팅했는지 확인
   const bettingComplete = activePlayers.every(p => 
     p.currentBet === gameState.currentBet || p.chips === 0
   );
 
-  if (bettingComplete) return -1;
+  // 모든 플레이어가 행동했고 베팅이 완료되었으면 라운드 종료
+  if (allPlayersActed && bettingComplete) return -1;
 
   // 다음 활성 플레이어 찾기
   for (let i = 1; i < gameState.players.length; i++) {
     const nextIndex = (currentIndex + i) % gameState.players.length;
     const nextPlayer = gameState.players[nextIndex];
     
-    if (!nextPlayer.folded && nextPlayer.currentBet < gameState.currentBet) {
-      return nextIndex;
+    if (!nextPlayer.folded) {
+      // 베팅이 필요하거나 아직 행동하지 않은 플레이어
+      if (nextPlayer.currentBet < gameState.currentBet || nextPlayer.isTurn) {
+        return nextIndex;
+      }
     }
   }
 
