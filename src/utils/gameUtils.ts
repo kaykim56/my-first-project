@@ -168,13 +168,24 @@ export function exchangeCards(gameState: GameState, playerId: string, cardIds: s
   const newPlayers = [...gameState.players];
   newPlayers[playerIndex] = {
     ...player,
-    cards: updatedCards
+    cards: updatedCards,
+    isTurn: false
   };
+
+  // 다음 플레이어로 턴 이동
+  const nextPlayerIndex = getNextPlayerIndex(gameState, playerIndex);
+  if (nextPlayerIndex !== -1) {
+    newPlayers[nextPlayerIndex] = {
+      ...newPlayers[nextPlayerIndex],
+      isTurn: true
+    };
+  }
 
   return {
     ...gameState,
     players: newPlayers,
     deck: remainingDeck,
+    currentPlayerIndex: nextPlayerIndex,
     exchangesRemaining: gameState.exchangesRemaining - 1
   };
 }
@@ -239,7 +250,12 @@ function endBettingRound(gameState: GameState): GameState {
       phase: 'card-exchange',
       round: 2,
       currentBet: 0,
-      players: gameState.players.map(p => ({ ...p, currentBet: 0, isTurn: false }))
+      currentPlayerIndex: 0,
+      players: gameState.players.map((p, index) => ({ 
+        ...p, 
+        currentBet: 0, 
+        isTurn: index === 0 // 첫 번째 플레이어(human)부터 시작
+      }))
     };
   } else {
     // 두 번째 라운드 후 승부 결정
@@ -248,7 +264,7 @@ function endBettingRound(gameState: GameState): GameState {
 }
 
 // 다음 플레이어 인덱스 찾기
-function getNextPlayerIndex(gameState: GameState, currentIndex: number): number {
+export function getNextPlayerIndex(gameState: GameState, currentIndex: number): number {
   const activePlayers = gameState.players.filter(p => !p.folded);
   if (activePlayers.length <= 1) return -1;
 
