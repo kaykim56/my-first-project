@@ -32,81 +32,61 @@ export default function BettingPanel({
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-indigo-900/30 backdrop-blur-sm rounded-2xl p-6 space-y-6 border border-purple-500/30 shadow-2xl shadow-purple-900/20">
-      {/* 모던 팟 정보 */}
-      <div className="text-center bg-gradient-to-r from-purple-800/20 to-blue-800/20 rounded-xl p-4 border border-purple-500/20">
-        <div className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent mb-1">
-          💎 POT
+    <div className="bg-white rounded-lg p-4 space-y-4 shadow-md border border-gray-200">
+      {/* 팟 정보 */}
+      <div className="text-center bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+        <div className="text-lg font-bold text-yellow-700">
+          팟: {pot.toLocaleString()} 칩
         </div>
-        <div className="text-xl font-bold text-white">
-          {pot.toLocaleString()}
-        </div>
-        <div className="text-sm text-gray-300 mt-1">
-          Current: {currentBet.toLocaleString()}
+        <div className="text-sm text-gray-600">
+          현재 베팅: {currentBet.toLocaleString()} 칩
         </div>
       </div>
 
-      {/* 모던 플레이어 정보 */}
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        <div className="bg-gray-800/50 px-3 py-2 rounded-xl text-center border border-gray-600/30">
-          <div className="text-gray-400 text-xs">CHIPS</div>
-          <div className="text-white font-bold">{playerChips.toLocaleString()}</div>
-        </div>
-        <div className="bg-gray-800/50 px-3 py-2 rounded-xl text-center border border-gray-600/30">
-          <div className="text-gray-400 text-xs">BET</div>
-          <div className="text-white font-bold">{playerCurrentBet.toLocaleString()}</div>
-        </div>
+      {/* 플레이어 정보 */}
+      <div className="flex justify-between text-sm text-gray-600">
+        <span>보유 칩: {playerChips.toLocaleString()}</span>
+        <span>현재 베팅: {playerCurrentBet.toLocaleString()}</span>
       </div>
 
-      {/* 모던 베팅 버튼들 */}
-      <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          {/* 폴드 */}
+      {/* 베팅 버튼들 */}
+      <div className="grid grid-cols-2 gap-2">
+        {/* 폴드 */}
+        <button
+          onClick={() => onBettingAction('fold')}
+          disabled={disabled || !bettingState.canFold}
+          className="
+            bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:opacity-50
+            text-white font-bold py-2 px-4 rounded transition-colors
+          "
+        >
+          폴드
+        </button>
+
+        {/* 체크/콜 */}
+        {callAmount === 0 ? (
           <button
-            onClick={() => onBettingAction('fold')}
-            disabled={disabled || !bettingState.canFold}
+            onClick={() => onBettingAction('check')}
+            disabled={disabled || !bettingState.canCheck}
             className="
-              bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800
-              disabled:from-gray-600 disabled:to-gray-700 disabled:opacity-50
-              text-white font-bold py-3 px-4 rounded-xl transition-all duration-300
-              shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105
-              border border-red-500/30
+              bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:opacity-50
+              text-white font-bold py-2 px-4 rounded transition-colors
             "
           >
-            💀 FOLD
+            체크
           </button>
-
-          {/* 체크/콜 */}
-          {callAmount === 0 ? (
-            <button
-              onClick={() => onBettingAction('check')}
-              disabled={disabled || !bettingState.canCheck}
-              className="
-                bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700
-                disabled:from-gray-600 disabled:to-gray-700 disabled:opacity-50
-                text-white font-bold py-3 px-4 rounded-xl transition-all duration-300
-                shadow-lg shadow-yellow-500/30 hover:shadow-yellow-500/50 hover:scale-105
-                border border-yellow-500/30
-              "
-            >
-              ✋ CHECK
-            </button>
-          ) : (
-            <button
-              onClick={() => onBettingAction('call')}
-              disabled={disabled || !bettingState.canCall || callAmount > playerChips}
-              className="
-                bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700
-                disabled:from-gray-600 disabled:to-gray-700 disabled:opacity-50
-                text-white font-bold py-3 px-4 rounded-xl transition-all duration-300
-                shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:scale-105
-                border border-green-500/30
-              "
-            >
-              💵 CALL ({callAmount.toLocaleString()})
-            </button>
-          )}
-        </div>
+        ) : (
+          <button
+            onClick={() => onBettingAction('call')}
+            disabled={disabled || !bettingState.canCall || callAmount > playerChips}
+            className="
+              bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:opacity-50
+              text-white font-bold py-2 px-4 rounded transition-colors
+            "
+          >
+            콜 ({callAmount.toLocaleString()})
+          </button>
+        )}
 
         {/* 레이즈 */}
         <button
@@ -118,14 +98,11 @@ export default function BettingPanel({
             minRaise > maxRaise
           }
           className="
-            w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700
-            disabled:from-gray-600 disabled:to-gray-700 disabled:opacity-50
-            text-white font-bold py-4 px-6 rounded-xl transition-all duration-300
-            shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105
-            border border-purple-500/30 text-lg
+            bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 disabled:opacity-50
+            text-white font-bold py-2 px-4 rounded transition-colors col-span-2
           "
         >
-          🚀 RAISE ({minRaise.toLocaleString()})
+          레이즈 ({minRaise.toLocaleString()})
         </button>
       </div>
 

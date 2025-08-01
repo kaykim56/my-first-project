@@ -78,21 +78,16 @@ export default function GameBoard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-950 p-4 relative overflow-hidden">
-      {/* 배경 장식 효과 */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent_50%)]"></div>
-      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
-      
-      <div className="max-w-6xl mx-auto relative z-10">
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-6xl mx-auto">
         
-        {/* 모던 헤더 */}
+        {/* 심플 헤더 */}
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent mb-3">
-            ♠ BADUGI POKER ♠
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            🃏 바둑이 포커
           </h1>
-          <p className="text-gray-300 text-lg">Next-Gen AI Poker Experience</p>
-          <div className="w-32 h-1 bg-gradient-to-r from-purple-500 to-cyan-500 mx-auto mt-3 rounded-full"></div>
+          <p className="text-gray-600">AI와 함께하는 바둑이 게임</p>
+          <div className="w-24 h-0.5 bg-gray-400 mx-auto mt-3"></div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -105,23 +100,18 @@ export default function GameBoard() {
           {/* 중앙: 게임 보드 */}
           <div className="lg:col-span-1 space-y-6">
             
-            {/* AI 플레이어 영역 - 모던 디자인 */}
-            <div className="bg-gradient-to-br from-red-900/20 via-purple-900/30 to-indigo-900/20 backdrop-blur-sm rounded-2xl p-6 border border-red-500/30 shadow-2xl shadow-red-900/20">
+            {/* AI 플레이어 영역 */}
+            <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
               <div className="text-center mb-4">
-                <h3 className="text-xl font-bold bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent">
-                  🤖 AI OPPONENT
+                <h3 className="text-lg font-semibold text-red-600">
+                  🤖 AI 플레이어
                 </h3>
-                <div className="text-sm text-gray-300 mt-2 space-x-4">
-                  <span className="bg-gray-800/50 px-3 py-1 rounded-full">
-                    💰 {aiPlayer.chips.toLocaleString()}
-                  </span>
-                  <span className="bg-gray-800/50 px-3 py-1 rounded-full">
-                    🎯 {aiPlayer.currentBet.toLocaleString()}
-                  </span>
+                <div className="text-sm text-gray-600 mt-2">
+                  칩: {aiPlayer.chips.toLocaleString()} | 베팅: {aiPlayer.currentBet.toLocaleString()}
                 </div>
                 {aiPlayer.isTurn && (
-                  <div className="text-yellow-400 text-sm animate-pulse mt-3 bg-yellow-900/20 px-4 py-2 rounded-full border border-yellow-500/30">
-                    ⚡ AI 분석 중...
+                  <div className="text-orange-600 text-sm mt-2 bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
+                    🤖 AI가 생각 중...
                   </div>
                 )}
               </div>
@@ -141,50 +131,39 @@ export default function GameBoard() {
                 ) : (
                   // 게임 진행 중에는 뒷면 표시
                   aiPlayer.cards.map((_, index) => (
-                    <Card
-                      key={`ai-card-${index}`}
-                      card={{ suit: 'spades', rank: 'A', id: `ai-${index}` }}
-                      isHidden={true}
-                      className="transform scale-90"
-                    />
+                  <Card
+                    key={`ai-card-${index}`}
+                    card={{ suit: 'spades', rank: 'A', id: `ai-${index}` }}
+                    isHidden={true}
+                    className="transform scale-90"
+                  />
                   ))
                 )}
               </div>
             </div>
 
-            {/* 모던 팟 영역 */}
-            <div className="text-center bg-gradient-to-br from-yellow-900/30 via-orange-900/30 to-amber-900/30 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/30 shadow-2xl shadow-yellow-900/20 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-2xl"></div>
-              <div className="relative z-10">
-                <div className="text-3xl font-black bg-gradient-to-r from-yellow-400 via-orange-400 to-amber-400 bg-clip-text text-transparent mb-2">
-                  💎 POT
-                </div>
-                <div className="text-2xl font-bold text-white mb-1">
-                  {gameState.pot.toLocaleString()}
-                </div>
-                <div className="text-sm text-gray-300 bg-gray-800/50 px-3 py-1 rounded-full inline-block">
-                  Current Bet: {gameState.currentBet.toLocaleString()}
-                </div>
+            {/* 팟 영역 */}
+            <div className="text-center bg-yellow-50 rounded-lg p-4 border-2 border-yellow-300 shadow-md">
+              <div className="text-2xl font-bold text-yellow-700 mb-2">
+                💰 팟: {gameState.pot.toLocaleString()} 칩
+              </div>
+              <div className="text-sm text-gray-600">
+                현재 베팅: {gameState.currentBet.toLocaleString()} 칩
               </div>
             </div>
 
-            {/* 플레이어 영역 - 모던 디자인 */}
-            <div className="bg-gradient-to-br from-green-900/20 via-emerald-900/30 to-cyan-900/20 backdrop-blur-sm rounded-2xl p-6 border border-green-500/30 shadow-2xl shadow-green-900/20">
+            {/* 플레이어 영역 */}
+            <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
               <div className="text-center mb-4">
-                <h3 className="text-xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-                  👤 YOUR HAND
+                <h3 className="text-lg font-semibold text-green-600">
+                  👤 플레이어 (당신)
                 </h3>
-                <div className="text-sm text-gray-300 mt-2 space-x-4">
-                  <span className="bg-gray-800/50 px-3 py-1 rounded-full">
-                    💰 {humanPlayer.chips.toLocaleString()}
-                  </span>
-                  <span className="bg-gray-800/50 px-3 py-1 rounded-full">
-                    🎯 {humanPlayer.currentBet.toLocaleString()}
-                  </span>
+                <div className="text-sm text-gray-600 mt-2">
+                  칩: {humanPlayer.chips.toLocaleString()} | 베팅: {humanPlayer.currentBet.toLocaleString()}
                 </div>
                 {isHumanTurn && (
-                  <div className="text-green-400 text-sm animate-pulse mt-3 bg-green-900/20 px-4 py-2 rounded-full border border-green-500/30">
-                    ⚡ YOUR TURN!
+                  <div className="text-green-600 text-sm mt-2 bg-green-50 px-3 py-1 rounded-full border border-green-200">
+                    ⭐ 당신의 차례입니다!
                   </div>
                 )}
               </div>
@@ -206,30 +185,24 @@ export default function GameBoard() {
 
               {/* 카드 교체 버튼 */}
               {gameState.phase === 'card-exchange' && isHumanTurn && (
-                <div className="flex justify-center space-x-3">
+                <div className="flex justify-center space-x-2">
                   <button
                     onClick={handleCardExchange}
                     disabled={uiState.selectedCards.length === 0}
                     className="
-                      bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700
-                      disabled:from-gray-600 disabled:to-gray-700 disabled:opacity-50
-                      text-white font-bold py-3 px-6 rounded-xl transition-all duration-300
-                      shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105
-                      border border-blue-500/30
+                      bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:opacity-50
+                      text-white font-bold py-2 px-4 rounded transition-colors
                     "
                   >
-                    ⚡ EXCHANGE ({uiState.selectedCards.length})
+                    선택한 카드 교체 ({uiState.selectedCards.length}장)
                   </button>
                   <button
                     onClick={handleSkipExchange}
                     className="
-                      bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800
-                      text-white font-bold py-3 px-6 rounded-xl transition-all duration-300
-                      shadow-lg shadow-gray-500/30 hover:shadow-gray-500/50 hover:scale-105
-                      border border-gray-500/30
+                      bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors
                     "
                   >
-                    ⏭ SKIP
+                    교체 안함
                   </button>
                 </div>
               )}
@@ -258,31 +231,26 @@ export default function GameBoard() {
             <button
               onClick={startGame}
               className="
-                bg-gradient-to-r from-green-600 via-emerald-600 to-cyan-600 
-                hover:from-green-700 hover:via-emerald-700 hover:to-cyan-700
-                text-white font-black py-4 px-8 rounded-2xl text-xl transition-all duration-300
-                shadow-2xl shadow-green-500/40 hover:shadow-green-500/60 hover:scale-110 transform
-                border border-green-400/30 backdrop-blur-sm
-                animate-pulse hover:animate-none
+                bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors
               "
             >
-              🚀 START GAME
+              🎮 게임 시작
             </button>
           )}
 
           {gameState.phase === 'game-over' && (
             <div className="space-y-6">
               {/* 족보 비교 결과 */}
-              <div className="bg-gray-800 rounded-lg p-6 border-2 border-yellow-500">
-                <h2 className="text-2xl font-bold text-center text-yellow-400 mb-6">
+              <div className="bg-white rounded-lg p-6 border-2 border-yellow-400 shadow-lg">
+                <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
                   🃏 족보 비교 결과 🃏
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* 플레이어 족보 */}
-                  <div className={`p-4 rounded-lg border-2 ${gameState.winner?.type === 'human' ? 'border-green-500 bg-green-900/20' : 'border-gray-500 bg-gray-900/20'}`}>
+                  <div className={`p-4 rounded-lg border-2 ${gameState.winner?.type === 'human' ? 'border-green-500 bg-green-50' : 'border-gray-400 bg-gray-50'}`}>
                     <div className="text-center">
-                      <h3 className="text-lg font-semibold text-green-300 mb-2">
+                      <h3 className="text-lg font-semibold text-green-600 mb-2">
                         {gameState.winner?.type === 'human' ? '🏆 ' : ''}플레이어 (당신)
                       </h3>
                       
@@ -290,13 +258,13 @@ export default function GameBoard() {
                         const humanHand = evaluateHand(humanPlayer.cards);
                         return (
                           <>
-                            <div className="text-2xl font-bold text-white mb-2">
+                            <div className="text-2xl font-bold text-gray-800 mb-2">
                               {getHandRankName(humanHand.rank)}
                             </div>
-                            <div className="text-sm text-gray-300 mb-3">
+                            <div className="text-sm text-gray-600 mb-3">
                               {getHandRankDescription(humanHand.rank)}
                             </div>
-                            <div className="text-lg font-mono text-yellow-300 mb-2">
+                            <div className="text-lg font-mono text-blue-600 mb-2">
                               유효 카드: {humanHand.cards.map(formatCard).join(' ')}
                             </div>
                             <div className="flex justify-center space-x-1">
@@ -316,9 +284,9 @@ export default function GameBoard() {
                   </div>
 
                   {/* AI 족보 */}
-                  <div className={`p-4 rounded-lg border-2 ${gameState.winner?.type === 'ai' ? 'border-red-500 bg-red-900/20' : 'border-gray-500 bg-gray-900/20'}`}>
+                  <div className={`p-4 rounded-lg border-2 ${gameState.winner?.type === 'ai' ? 'border-red-500 bg-red-50' : 'border-gray-400 bg-gray-50'}`}>
                     <div className="text-center">
-                      <h3 className="text-lg font-semibold text-red-300 mb-2">
+                      <h3 className="text-lg font-semibold text-red-600 mb-2">
                         {gameState.winner?.type === 'ai' ? '🏆 ' : ''}AI 플레이어
                       </h3>
                       
@@ -326,13 +294,13 @@ export default function GameBoard() {
                         const aiHand = evaluateHand(aiPlayer.cards);
                         return (
                           <>
-                            <div className="text-2xl font-bold text-white mb-2">
+                            <div className="text-2xl font-bold text-gray-800 mb-2">
                               {getHandRankName(aiHand.rank)}
                             </div>
-                            <div className="text-sm text-gray-300 mb-3">
+                            <div className="text-sm text-gray-600 mb-3">
                               {getHandRankDescription(aiHand.rank)}
                             </div>
-                            <div className="text-lg font-mono text-yellow-300 mb-2">
+                            <div className="text-lg font-mono text-blue-600 mb-2">
                               유효 카드: {aiHand.cards.map(formatCard).join(' ')}
                             </div>
                             <div className="flex justify-center space-x-1">
@@ -354,33 +322,29 @@ export default function GameBoard() {
 
                 {/* 승부 결과 */}
                 <div className="mt-6 text-center">
-                  {gameState.winner && (
+              {gameState.winner && (
                     <div className="text-2xl font-bold">
-                      {gameState.winner.type === 'human' ? (
+                  {gameState.winner.type === 'human' ? (
                         <span className="text-green-400">🎉 축하합니다! 승리했습니다! 🎉</span>
-                      ) : (
+                  ) : (
                         <span className="text-red-400">😔 아쉽게도 패배했습니다. 😔</span>
-                      )}
-                    </div>
                   )}
+                </div>
+              )}
                 </div>
               </div>
 
               {/* 새 게임 버튼 */}
               <div className="text-center">
-                <button
-                  onClick={newGame}
-                  className="
-                    bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 
-                    hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700
-                    text-white font-black py-4 px-8 rounded-2xl text-xl transition-all duration-300
-                    shadow-2xl shadow-blue-500/40 hover:shadow-blue-500/60 hover:scale-110 transform
-                    border border-blue-400/30 backdrop-blur-sm
-                  "
-                >
-                  🎮 NEW GAME
-                </button>
-              </div>
+              <button
+                onClick={newGame}
+                className="
+                  bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors
+                "
+              >
+                🔄 새 게임
+              </button>
+                </div>
             </div>
           )}
         </div>
