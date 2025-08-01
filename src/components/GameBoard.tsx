@@ -4,6 +4,8 @@ import { useGame } from '@/hooks/useGame';
 import Card from './Card';
 import BettingPanel from './BettingPanel';
 import GameInfo from './GameInfo';
+import { evaluateHand } from '@/utils/cardUtils';
+import { Player } from '@/types';
 
 export default function GameBoard() {
   const {
@@ -42,6 +44,39 @@ export default function GameBoard() {
     exchangeSelectedCards(); // 빈 배열로 교체 (스킵)
   };
 
+  // 족보 이름 변환
+  const getHandRankName = (rank: string) => {
+    const names: Record<string, string> = {
+      'badugi': '바둑이',
+      'three-card': '쓰리카드',
+      'two-card': '투카드',
+      'one-card': '원카드'
+    };
+    return names[rank] || rank;
+  };
+
+  // 족보 설명
+  const getHandRankDescription = (rank: string) => {
+    const descriptions: Record<string, string> = {
+      'badugi': '4장 모두 다른 무늬, 다른 숫자 (최고)',
+      'three-card': '3장이 서로 다른 무늬, 다른 숫자',
+      'two-card': '2장이 서로 다른 무늬, 다른 숫자',
+      'one-card': '1장만 유효 (최하)'
+    };
+    return descriptions[rank] || '';
+  };
+
+  // 카드 표시 형식
+  const formatCard = (card: { rank: string; suit: string }) => {
+    const suitSymbols: Record<string, string> = {
+      'spades': '♠',
+      'hearts': '♥',
+      'diamonds': '♦',
+      'clubs': '♣'
+    };
+    return `${card.rank}${suitSymbols[card.suit] || card.suit}`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-900 to-gray-900 p-4">
       <div className="max-w-6xl mx-auto">
@@ -50,14 +85,7 @@ export default function GameBoard() {
         <div className="text-center mb-6">
           <h1 className="text-4xl font-bold text-yellow-400 mb-2">🃏 바둑이 포커</h1>
           <p className="text-gray-300">AI와 함께하는 바둑이 게임</p>
-          {/* 디버그 정보 */}
-          <div className="text-xs text-gray-500 mt-2 bg-gray-800 p-2 rounded">
-            Phase: {gameState.phase} | Round: {gameState.round} | 
-            HumanTurn: {isHumanTurn ? 'YES' : 'NO'} | 
-            Animating: {uiState.animating ? 'YES' : 'NO'} |
-            CurrentBet: {gameState.currentBet} |
-            HumanBet: {humanPlayer.currentBet}
-          </div>
+
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -84,16 +112,29 @@ export default function GameBoard() {
                 )}
               </div>
               
-              {/* AI 카드 (뒷면) */}
+              {/* AI 카드 */}
               <div className="flex justify-center space-x-2">
-                {aiPlayer.cards.map((_, index) => (
-                  <Card
-                    key={`ai-card-${index}`}
-                    card={{ suit: 'spades', rank: 'A', id: `ai-${index}` }}
-                    isHidden={true}
-                    className="transform scale-90"
-                  />
-                ))}
+                {gameState.phase === 'game-over' ? (
+                  // 게임 오버 시 실제 AI 카드 공개
+                  aiPlayer.cards.map((card) => (
+                    <Card
+                      key={card.id}
+                      card={card}
+                      isHidden={false}
+                      className="transform scale-90"
+                    />
+                  ))
+                ) : (
+                  // 게임 진행 중에는 뒷면 표시
+                  aiPlayer.cards.map((_, index) => (
+                    <Card
+                      key={`ai-card-${index}`}
+                      card={{ suit: 'spades', rank: 'A', id: `ai-${index}` }}
+                      isHidden={true}
+                      className="transform scale-90"
+                    />
+                  ))
+                )}
               </div>
             </div>
 
@@ -192,25 +233,112 @@ export default function GameBoard() {
           )}
 
           {gameState.phase === 'game-over' && (
-            <div className="space-x-4">
-              <button
-                onClick={newGame}
-                className="
-                  bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors
-                "
-              >
-                🔄 새 게임
-              </button>
-              
-              {gameState.winner && (
-                <div className="mt-4 text-xl">
-                  {gameState.winner.type === 'human' ? (
-                    <span className="text-green-400">🎉 축하합니다! 승리했습니다!</span>
-                  ) : (
-                    <span className="text-red-400">😔 아쉽게도 패배했습니다.</span>
+            <div className="space-y-6">
+              {/* 족보 비교 결과 */}
+              <div className="bg-gray-800 rounded-lg p-6 border-2 border-yellow-500">
+                <h2 className="text-2xl font-bold text-center text-yellow-400 mb-6">
+                  🃏 족보 비교 결과 🃏
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* 플레이어 족보 */}
+                  <div className={`p-4 rounded-lg border-2 ${gameState.winner?.type === 'human' ? 'border-green-500 bg-green-900/20' : 'border-gray-500 bg-gray-900/20'}`}>
+                    <div className="text-center">
+                      <h3 className="text-lg font-semibold text-green-300 mb-2">
+                        {gameState.winner?.type === 'human' ? '🏆 ' : ''}플레이어 (당신)
+                      </h3>
+                      
+                      {(() => {
+                        const humanHand = evaluateHand(humanPlayer.cards);
+                        return (
+                          <>
+                            <div className="text-2xl font-bold text-white mb-2">
+                              {getHandRankName(humanHand.rank)}
+                            </div>
+                            <div className="text-sm text-gray-300 mb-3">
+                              {getHandRankDescription(humanHand.rank)}
+                            </div>
+                            <div className="text-lg font-mono text-yellow-300 mb-2">
+                              유효 카드: {humanHand.cards.map(formatCard).join(' ')}
+                            </div>
+                            <div className="flex justify-center space-x-1">
+                              {humanHand.cards.map((card, index) => (
+                                <Card
+                                  key={`result-human-${index}`}
+                                  card={card}
+                                  isHidden={false}
+                                  className="transform scale-75"
+                                />
+                              ))}
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* AI 족보 */}
+                  <div className={`p-4 rounded-lg border-2 ${gameState.winner?.type === 'ai' ? 'border-red-500 bg-red-900/20' : 'border-gray-500 bg-gray-900/20'}`}>
+                    <div className="text-center">
+                      <h3 className="text-lg font-semibold text-red-300 mb-2">
+                        {gameState.winner?.type === 'ai' ? '🏆 ' : ''}AI 플레이어
+                      </h3>
+                      
+                      {(() => {
+                        const aiHand = evaluateHand(aiPlayer.cards);
+                        return (
+                          <>
+                            <div className="text-2xl font-bold text-white mb-2">
+                              {getHandRankName(aiHand.rank)}
+                            </div>
+                            <div className="text-sm text-gray-300 mb-3">
+                              {getHandRankDescription(aiHand.rank)}
+                            </div>
+                            <div className="text-lg font-mono text-yellow-300 mb-2">
+                              유효 카드: {aiHand.cards.map(formatCard).join(' ')}
+                            </div>
+                            <div className="flex justify-center space-x-1">
+                              {aiHand.cards.map((card, index) => (
+                                <Card
+                                  key={`result-ai-${index}`}
+                                  card={card}
+                                  isHidden={false}
+                                  className="transform scale-75"
+                                />
+                              ))}
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 승부 결과 */}
+                <div className="mt-6 text-center">
+                  {gameState.winner && (
+                    <div className="text-2xl font-bold">
+                      {gameState.winner.type === 'human' ? (
+                        <span className="text-green-400">🎉 축하합니다! 승리했습니다! 🎉</span>
+                      ) : (
+                        <span className="text-red-400">😔 아쉽게도 패배했습니다. 😔</span>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
+              </div>
+
+              {/* 새 게임 버튼 */}
+              <div className="text-center">
+                <button
+                  onClick={newGame}
+                  className="
+                    bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors
+                  "
+                >
+                  🔄 새 게임 시작
+                </button>
+              </div>
             </div>
           )}
         </div>
