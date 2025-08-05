@@ -49,10 +49,10 @@ export function createGameState(settings: GameSettings = DEFAULT_GAME_SETTINGS):
 export function startNewRound(gameState: GameState): GameState {
   const newDeck = createDeck();
   
-  // 각 플레이어에게 5장씩 카드 분배
+  // 각 플레이어에게 4장씩 카드 분배
   let remainingDeck = newDeck;
   const updatedPlayers = gameState.players.map(player => {
-    const { cards, remainingDeck: newRemaining } = drawCards(remainingDeck, 5);
+    const { cards, remainingDeck: newRemaining } = drawCards(remainingDeck, 4);
     remainingDeck = newRemaining;
     
     return {

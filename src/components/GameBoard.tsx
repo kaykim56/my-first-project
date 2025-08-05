@@ -218,6 +218,29 @@ export default function GameBoard() {
                 ))}
               </div>
 
+              {/* 현재 족보 표시 */}
+              {humanPlayer.cards.length > 0 && gameState.phase !== 'lobby' && (
+                <div className="mt-3">
+                  {(() => {
+                    const currentHand = evaluateHand(humanPlayer.cards);
+                    return (
+                      <div className="text-center p-3 rounded-lg bg-blue-50 border-2 border-blue-300">
+                        <div className="text-sm text-gray-600 mb-1">현재 족보</div>
+                        <div className="font-bold text-blue-700 text-lg">
+                          {getHandRankName(currentHand.rank)}
+                        </div>
+                        <div className="text-sm text-blue-600 mt-1">
+                          {currentHand.cards.map(formatCard).join(' ')}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {getHandRankDescription(currentHand.rank)}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
               {/* 카드 교체 버튼 */}
               {gameState.phase === 'card-exchange' && isHumanTurn && (
                 <div className="flex justify-center space-x-2">
